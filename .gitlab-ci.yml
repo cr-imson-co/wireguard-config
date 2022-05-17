@@ -1,0 +1,41 @@
+---
+  stages:
+  - 'lint'
+
+  variables:
+    PYTHON_VERSION: '3.9'
+    PIP_DISABLE_PIP_VERSION_CHECK: 1
+
+  # shellcheck:
+  #   stage: 'lint'
+  #   image:
+  #     name: '${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/koalaman/shellcheck-alpine:stable'
+  #     entrypoint: ['']
+  #   tags:
+  #   - 'docker'
+  #   - 'amd64'
+  #   script:
+  #   - 'find . -type f -iname "*.sh" -print0 | xargs -0 shellcheck -s bash -e SC1091'
+  #   rules:
+  #   - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "webide" || $CI_PIPELINE_SOURCE == "api") && $FORCE_BUILD'
+  #   - if: '$CI_PIPELINE_SOURCE == "push"'
+  #     # changes:
+  #     # - 'utils/*.sh'
+
+  pylint:
+    stage: 'lint'
+    image:
+      name: '${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/python:3.9'
+    tags:
+    - 'docker'
+    - 'amd64'
+    before_script:
+    - 'python -m pip install --progress-bar off --quiet --no-input pylint'
+    script:
+    - 'find ./wireguard_config/ -type f -iname "*.py" -print0 | xargs -0 python -m pylint --rcfile ./.pylintrc'
+    rules:
+    - if: '($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "webide" || $CI_PIPELINE_SOURCE == "api") && ($FORCE_BUILD == "all" || $FORCE_BUILD == "functions")'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      # changes:
+      # - 'wireguard_config/*.py'
+
