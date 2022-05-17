@@ -191,15 +191,18 @@ def main(
     server_identity_path.write_text(config.create_server_identity(), 'utf-8')
 
     server_config_path.write_text(config.create_server_config(), 'utf-8')
-    server_config_path.chmod(0o700) # chmod 700
+    server_config_path.chmod(0o600) # chmod 600
     if os.geteuid() == 0:
         os.chown(server_config_path, uid=0, gid=0) # chown root:root
 
     for entry in client_legacy_files_path.iterdir():
         if entry.is_dir():
             client = ClientIdentity.from_legacy_files(entry)
-            client_identity_file = client_legacy_files_path / (entry.name.split('.')[0] + '.json')
+            client_identity_file = client_legacy_files_path / (entry.name + '.json')
             client_identity_file.write_text(client.to_identity_file(), 'utf-8')
+            client_identity_file.chmod(0o600) # chmod 600
+            if os.geteuid() == 0:
+                os.chown(client_identity_file, uid=0, gid=0) # chown root:root
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Bootstrap a Wireguard server setup.')

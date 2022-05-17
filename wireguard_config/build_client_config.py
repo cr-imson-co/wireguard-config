@@ -184,9 +184,12 @@ def main(
     client.gen_client_keys()
 
     client_identity_path.write_text(client.create_client_identity(), 'utf-8')
+    client_identity_path.chmod(0o600) # chmod 600
+    if os.geteuid() == 0:
+        os.chown(client_identity_path, uid=0, gid=0) # chown root:root
 
     wg_conf_path.write_text(client.create_client_config(server), 'utf-8')
-    wg_conf_path.chmod(0o700) # chmod 700
+    wg_conf_path.chmod(0o600) # chmod 600
     if os.geteuid() == 0:
         os.chown(wg_conf_path, uid=0, gid=0) # chown root:root
 

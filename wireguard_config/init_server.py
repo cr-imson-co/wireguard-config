@@ -155,9 +155,12 @@ def main(
     server.vpn_server_ip = next(server.vpn_network.hosts())
 
     server_identity_path.write_text(server.create_server_identity(), 'utf-8')
+    server_identity_path.chmod(0o600) # chmod 600
+    if os.geteuid() == 0:
+        os.chown(server_identity_path, uid=0, gid=0) # chown root:root
 
     server_config_path.write_text(server.create_server_config(), 'utf-8')
-    server_config_path.chmod(0o700) # chmod 700
+    server_config_path.chmod(0o600) # chmod 600
     if os.geteuid() == 0:
         os.chown(server_config_path, uid=0, gid=0) # chown root:root
 

@@ -158,7 +158,7 @@ def main(
             clients.append(ClientIdentity.from_json(entry.read_text('utf-8')))
 
     wg_conf_path.write_text(server.create_server_config(clients), 'utf-8')
-    wg_conf_path.chmod(0o700) # chmod 700
+    wg_conf_path.chmod(0o600) # chmod 600
     if os.geteuid() == 0:
         os.chown(wg_conf_path, uid=0, gid=0) # chown root:root
 
